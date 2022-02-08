@@ -1,0 +1,405 @@
+@using AngularAdapterBuild
+@using Aspose.Pdf.Text
+@using BlazorComponents.Services
+@using System.IO
+@using System.Reflection.Metadata
+@using System.Runtime.InteropServices
+@using Aspose.Pdf
+@using Aspose.Pdf.Devices
+@using Aspose.Pdf.Facades
+@using Document = Aspose.Pdf.Document
+@inject IAppService app
+@inject IJSRuntime JS
+@inject HttpClient Http
+@attribute [GenerateAngular]
+
+<div class="card">
+    <div class="card-block">
+        <p class="card-text">
+            <span class="blazor-hint">(Blazor component)</span>@Comment.body
+        </p>
+    </div>
+    <div class="card-footer">
+        <NavLink class="comment-author" href=@($"{Settings.linkPrefix}profile/{Comment.author.username}")>
+            <img src="@Comment.author.image" class="comment-author-img" />
+        </NavLink>
+        &nbsp;
+        <NavLink class="comment-author" href=@($"{Settings.linkPrefix}profile/{Comment.author.username}")>
+            @Comment.author.username
+        </NavLink>
+        <span class="date-posted">
+            @DateTime.Parse(Comment.createdAt).ToString("D")
+        </span>
+        <span class="mod-options" hidden="@(!canModify)" @onclick="DeleteClicked">
+            <i class="ion-trash-a"></i> <span class="mod-options-text">Delete</span>
+        </span>
+        <span class="mod-options" @onclick="PrintClicked">
+            <i class="ion-printer"></i> <span class="mod-options-text">Print to console</span>
+        </span>
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public Comment Comment { get; set; } = Comment.Empty();
+
+    /// <summary>
+    /// Event when the "delete" icon was clicked.
+    /// Type "bool" just for compatibility with original Angular component, which also uses bool there.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OnDeleteComment { get; set; }
+
+    /// <summary>
+    /// Additional event when the "print" icon was clicked.
+    /// Just for testing.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OnPrintComment { get; set; }
+
+    private bool canModify = true;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        canModify = (await app.GetCurrentUser())?.username == Comment.author.username;
+    }
+
+    private void DeleteClicked()
+    {
+        _ = OnDeleteComment.InvokeAsync(true);
+    }
+
+    private async Task PrintClicked()
+    {
+        var ms = new MemoryStream();
+
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+        var doc = new Document();
+        var page = doc.Pages.Add();
+        doc.AllowReusePageContent = false;
+        doc.EnableSignatureSanitization = false;
+        doc.FreeMemory();
+        doc.DisableFontLicenseVerifications = true;
+        doc.IgnoreCorruptedObjects = true;
+        doc.IsXrefGapsAllowed = true;
+        doc.Save(ms);
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms.ToArray()));
+
+        Console.WriteLine($"\n> Running Test1");
+        var ms1 = await Test1();
+        Console.WriteLine($"Invoking void 1");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms1.ToArray()));
+
+        Console.WriteLine($"\n> Running Test2");
+        var ms2 = await Test2();
+        Console.WriteLine($"Invoking void 2");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms2.ToArray()));
+
+        Console.WriteLine($"\n> Running Test3");
+        var ms3 = await Test3();
+        Console.WriteLine($"Invoking void 3");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms3.ToArray()));
+
+        Console.WriteLine($"\n> Running Test4");
+        var ms4 = await Test4();
+        Console.WriteLine($"Invoking void 4");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms4.ToArray()));
+
+        Console.WriteLine($"\n> Running Test5");
+        var ms5 = await Test5();
+        Console.WriteLine($"Invoking void 5");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms5.ToArray()));
+
+        Console.WriteLine($"\n> Running Test6");
+        var ms6 = await Test6();
+        Console.WriteLine($"Invoking void 6");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms6.ToArray()));
+
+        Console.WriteLine($"\n> Running Test7");
+        var ms7 = await Test7();
+        Console.WriteLine($"Invoking void 7");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms7.ToArray()));
+
+        Console.WriteLine($"\n> Running Test8");
+        var ms8 = await Test8();
+        Console.WriteLine($"Invoking void 8");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms8.ToArray()));
+
+        Console.WriteLine($"\n> Running Test9");
+        var ms9 = await Test9();
+        Console.WriteLine($"Invoking void 9");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms9.ToArray()));
+
+        Console.WriteLine($"\n> Running Test10");
+        var ms10 = await Test10();
+        Console.WriteLine($"Invoking void 10");
+        await JS.InvokeVoidAsync("jsOpenIntoNewTab", "Test", Convert.ToBase64String(ms10.ToArray()));
+
+        await OnPrintComment.InvokeAsync(true);
+    }
+
+    private async Task<MemoryStream> Test1()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        try
+        {
+            Console.WriteLine($"Saving to stream");
+            doc.Save(ms);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(">> Failed to save to stream");
+            Console.WriteLine(e.Message, e);
+        }
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test2()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        try
+        {
+            Console.WriteLine("Removing metadata");
+            doc.RemoveMetadata();
+            Console.WriteLine("Removing pdfUa complaince");
+            doc.RemovePdfUaCompliance();
+            Console.WriteLine("Removing pdfa complaince");
+            doc.RemovePdfaCompliance();
+            Console.WriteLine("Saving to stream");
+            doc.Save(ms);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(">> Failed to save to stream");
+            Console.WriteLine(e.Message, e);
+        }
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test3()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        try
+        {
+            Console.WriteLine("Embedding standard fonts");
+            doc.EmbedStandardFonts = true;
+            Console.WriteLine("Saving to stream");
+            doc.Save(ms);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(">> Failed to save to stream");
+            Console.WriteLine(e.Message, e);
+        }
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test4()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        try
+        {
+            Console.WriteLine("Attempting to convert page to png memory stream");
+            var imageStream = doc.ConvertPageToPNGMemoryStream(doc.Pages.First());
+            Console.WriteLine($"Creating new DotNetStreamReference");
+            using var imageStreamRef = new DotNetStreamReference(imageStream);
+            _ = JS.InvokeVoidAsync("downloadFileFromStream", "Test.png", imageStreamRef);
+            Console.WriteLine("Saving to stream");
+            doc.Save(ms);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(">> Failed to save to stream");
+            Console.WriteLine(e.Message, e);
+        }
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test5()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        foreach (var pdfFormat in (PdfFormat[])Enum.GetValues(typeof(PdfFormat)))
+        {
+            try // try every type
+            {
+                Console.WriteLine($"Attempting to convert page to new pdf format: {pdfFormat}");
+                doc.Convert(new PdfFormatConversionOptions(pdfFormat));
+                Console.WriteLine("Saving to stream");
+                doc.Save(ms);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(">> Failed to save to stream");
+                Console.WriteLine(e.Message, e);
+            }
+        }
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test6()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        try // try every type
+        {
+            Console.WriteLine($"Disabling font license verifications");
+            doc.DisableFontLicenseVerifications = true;
+            Console.WriteLine("Saving to stream");
+            doc.Save(ms);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(">> Failed to save to stream");
+            Console.WriteLine(e.Message, e);
+        }
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test7()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+
+        foreach (var saveFormat in (SaveFormat[])Enum.GetValues(typeof(SaveFormat)))
+        {
+            try
+            {
+                Console.WriteLine($"Saving to stream: {saveFormat}");
+                doc.Save(ms, saveFormat);
+                Console.WriteLine($"   >>> WORKING!!! WITH ENUM: {saveFormat} <<<   ");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(">> Failed to save to stream");
+                Console.WriteLine(e.Message, e);
+            }
+        }
+
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test11()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+
+        foreach (var saveFormat in (SaveFormat[])Enum.GetValues(typeof(SaveFormat)))
+        {
+            try
+            {
+                Console.WriteLine($"Saving to stream: {saveFormat}");
+                doc.Save(ms, new HtmlSaveOptions());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(">> Failed to save to stream");
+                Console.WriteLine(e.Message, e);
+            }
+        }
+
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test8()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        try
+        {
+            Console.WriteLine($"Disabling signature sanitization");
+            doc.EnableSignatureSanitization = false;
+            Console.WriteLine("Saving to stream");
+            doc.Save(ms);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(">> Failed to save to stream");
+            Console.WriteLine(e.Message, e);
+        }
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test9()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        try
+        {
+            Console.WriteLine("flattening document");
+            doc.Flatten();
+            Console.WriteLine("Saving to stream");
+            doc.Save(ms);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(">> Failed to save to stream");
+            Console.WriteLine(e.Message, e);
+        }
+        return ms;
+    }
+
+    private async Task<MemoryStream> Test10()
+    {
+        var ms = new MemoryStream();
+        var doc = await CreateBaseDocumentAsync();
+        try
+        {
+            doc.Save(@"C:\Users\Evan\Documents\Diablo II\test.pdf");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Couldn't get filepath");
+            Console.WriteLine(e.Message, e);
+        }
+
+        try
+        {
+            Console.WriteLine($"Create second memory stream and copy");
+            var ms2 = new MemoryStream();
+
+            ms.CopyTo(ms2);
+            Console.WriteLine($"Create StreamReader object");
+
+            var reader = new StreamReader(ms2);
+            Console.WriteLine("Reader output:");
+            Console.WriteLine(reader.ReadToEnd());
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($">> Couldn't get stream reader output");
+            Console.WriteLine(e.Message, e);
+        }
+        return ms;
+    }
+
+    private async Task<Document> CreateBaseDocumentAsync()
+    {
+        Console.WriteLine("Registering provider");
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+        Console.WriteLine($"Creating new document");
+        var doc = new Document();
+
+        Console.WriteLine($"Creating new page");
+        var page = doc.Pages.Add();
+
+        var fontStream = await Http.GetStreamAsync("assets/arial.ttf");
+
+        Console.WriteLine("Find and load Arial as default text state");
+        page.PageInfo.DefaultTextState.Font = FontRepository.OpenFont(fontStream, FontTypes.TTF);
+
+        Console.WriteLine($"Creating new paragraph with text");
+        page.Paragraphs.Add(new TextFragment("Test fragment"));
+        return doc;
+    }
+}

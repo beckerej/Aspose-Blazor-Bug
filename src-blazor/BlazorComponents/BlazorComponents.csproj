@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspose.Drawing" Version="22.1.0" />
+    <PackageReference Include="Aspose.HTML" Version="22.1.0" />
+    <PackageReference Include="Aspose.PDF" Version="22.1.0" />
+    <PackageReference Include="Aspose.Words" Version="22.2.0" />
+    <PackageReference Include="CoreCompat.libgdiplus" Version="6.0.4-ci-84" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AngularAdapterBuild\AngularAdapterBuild.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <RuntimeHostConfigurationOption Include="System.Drawing.EnableUnixSupport" Value="true" />
+      <None Include="wwwroot\arial.ttf" />
+  </ItemGroup>
+    
+  <Target Name="CleanBlazorBinariesInAngularProject" BeforeTargets="Publish">
+      <RemoveDir Directories="..\..\bin-blazor\_framework" />
+      <Delete Files="..\..\bin-blazor\$(ProjectName).styles.css" />
+  </Target>
+
+  <Import Project="..\AngularAdapterBuild\Build\net6.0\AngularAdapterBuild.targets" />
+
+  <Target Name="CopyBlazorBinariesToAngularProject" AfterTargets="Publish">    
+    <ItemGroup>
+      <_CopyItems Include="$(PublishDir)wwwroot\_framework\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_CopyItems)" DestinationFolder="..\..\bin-blazor\_framework" />
+    <Copy SourceFiles="$(PublishDir)wwwroot\$(ProjectName).styles.css" DestinationFolder="..\..\bin-blazor" />
+  </Target>
+
+</Project>

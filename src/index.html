@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Conduit</title>
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="//demo.productionready.io/main.css">
+
+  <!-- CSS for our Blazor component-->
+  <link href="BlazorComponents.styles.css" rel="stylesheet" />
+
+</head>
+<body>
+  <app-root>Loading...</app-root>
+
+  <!-- Load Blazor -->
+  <script src="_framework/blazor.webassembly.js"></script>
+
+  <script>
+    async function downloadFileFromStream(fileName, contentStreamReference) {
+      const arrayBuffer = await contentStreamReference.arrayBuffer();
+      const blob = new Blob([arrayBuffer]);
+      const url = URL.createObjectURL(blob);
+
+      triggerFileDownload(fileName, url);
+
+      URL.revokeObjectURL(url);
+    }
+
+    function triggerFileDownload(fileName, url) {
+      const anchorElement = document.createElement('a');
+      anchorElement.href = url;
+      anchorElement.download = fileName ?? '';
+      anchorElement.click();
+      anchorElement.remove();
+    }
+
+    function jsOpenIntoNewTab(filename, byteBase64) {
+      var blob = b64toBlob(byteBase64, 'application/octet-stream');
+
+      var blobURL = URL.createObjectURL(blob);
+      window.open(blobURL);
+    }
+
+    const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+      const byteCharacters = atob(b64Data);
+      const byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+
+      const blob = new Blob(byteArrays, {type: contentType});
+      return blob;
+    }
+  </script>
+
+</body>
+</html>
